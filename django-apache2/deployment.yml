@@ -1,0 +1,22 @@
+---
+- hosts: website-servers
+  remote_user: root
+  tasks:
+    - name: Pull the latest change of the master branch.
+      git:
+        repo: git@github.com:<username>/<yourrepo>
+        dest: <repo-path>
+        version: production  # production branch
+
+    - name: Install Requirements
+      shell: '. <virtualenv-path>/bin/activate && pip install -r <repo-path>/<requirement-file-path>'
+
+    - name: Run Migrations
+      shell: '. <virtualenv-path>/bin/activate && <repo-path>/manage.py migrate'
+      notify:
+        - Restart Apache2
+  handlers:
+    - name: Restart Apache2
+      service:
+        name: apache2
+        state: restarted
